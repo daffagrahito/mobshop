@@ -1,0 +1,34 @@
+# Environment variables
+.env
+.env.local
+.env.prod
+.env.production
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+main
+main.exe
+*.test
+*.out
+go.work
+
+.air.toml
+tmp/
+*.db
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+*.crt
+ssl/
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+.DS_Store
