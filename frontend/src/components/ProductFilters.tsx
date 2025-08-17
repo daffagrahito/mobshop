@@ -91,18 +91,35 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
     setModalOpened(false);
   };
 
+  const updateLocalFilter = (key: keyof FilterState, value: any) => {
+    setLocalFilters(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   const updateFilter = (key: keyof FilterState, value: any) => {
-    if (key === 'search') {
-      onFiltersChange({
-        ...filters,
-        [key]: value,
-      });
-    } else {
-      setLocalFilters(prev => ({
-        ...prev,
-        [key]: value,
-      }));
-    }
+    setLocalFilters(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+    
+    onFiltersChange({
+      ...filters,
+      [key]: value,
+    });
+  };
+
+  const updateMultipleFilters = (updates: Partial<FilterState>) => {
+    setLocalFilters(prev => ({
+      ...prev,
+      ...updates,
+    }));
+    
+    onFiltersChange({
+      ...filters,
+      ...updates,
+    });
   };
 
   const clearFilters = () => {
@@ -252,8 +269,10 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                         color="currentColor" 
                         variant="transparent" 
                         onClick={() => {
-                          updateFilter('priceMin', '');
-                          updateFilter('priceMax', '');
+                          updateMultipleFilters({
+                            priceMin: '',
+                            priceMax: '',
+                          });
                         }}
                       >
                         <IconX size={10} />
@@ -278,8 +297,10 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                         color="currentColor" 
                         variant="transparent" 
                         onClick={() => {
-                          updateFilter('sortBy', 'title');
-                          updateFilter('sortOrder', 'asc');
+                          updateMultipleFilters({
+                            sortBy: 'title',
+                            sortOrder: 'asc',
+                          });
                         }}
                       >
                         <IconX size={10} />
@@ -318,7 +339,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
               placeholder="Select a category"
               data={categoryOptions}
               value={localFilters.category}
-              onChange={(value) => updateFilter('category', value || '')}
+              onChange={(value) => updateLocalFilter('category', value || '')}
               clearable
               searchable
               style={{ width: '100%' }}
@@ -337,7 +358,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                 <NumberInput
                   placeholder="Min price"
                   value={localFilters.priceMin}
-                  onChange={(value) => updateFilter('priceMin', value === '' ? '' : Number(value) || '')}
+                  onChange={(value) => updateLocalFilter('priceMin', value === '' ? '' : Number(value) || '')}
                   min={0}
                   max={999999}
                   step={1}
@@ -359,7 +380,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                 <NumberInput
                   placeholder="Max price"
                   value={localFilters.priceMax}
-                  onChange={(value) => updateFilter('priceMax', value === '' ? '' : Number(value) || '')}
+                  onChange={(value) => updateLocalFilter('priceMax', value === '' ? '' : Number(value) || '')}
                   min={0}
                   max={999999}
                   step={1}
@@ -393,7 +414,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                   placeholder="Sort by"
                   data={sortOptions}
                   value={localFilters.sortBy}
-                  onChange={(value) => updateFilter('sortBy', value || 'title')}
+                  onChange={(value) => updateLocalFilter('sortBy', value || 'title')}
                   style={{ width: '100%' }}
                 />
               </Grid.Col>
@@ -407,7 +428,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
                       <IconSortDescending size={16} />
                     )
                   }
-                  onClick={() => updateFilter('sortOrder', localFilters.sortOrder === 'asc' ? 'desc' : 'asc')}
+                  onClick={() => updateLocalFilter('sortOrder', localFilters.sortOrder === 'asc' ? 'desc' : 'asc')}
                   fullWidth
                   size="sm"
                 >

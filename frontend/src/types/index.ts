@@ -44,7 +44,6 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-// New standardized response types
 export interface SuccessResponse<T = any> {
   message: string;
   data?: T;
