@@ -3,18 +3,13 @@ package main
 import (
 	"log"
 	"mobile-shop-backend/internal/database"
-	"mobile-shop-backend/internal/handlers"
-	"mobile-shop-backend/internal/middleware"
-	"mobile-shop-backend/internal/repositories"
-	"mobile-shop-backend/internal/services"
-	"net/http"
+	"mobile-shop-backend/internal/routes"
 	"os"
 	"strings"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -53,7 +48,7 @@ func main() {
 	}
 
 	log.Println("Database connected successfully")
-	setupFullRoutes(r, db)
+	routes.SetupRoutes(r, db)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -62,45 +57,6 @@ func main() {
 
 	log.Printf("Server starting on port %s", port)
 	log.Fatal(r.Run(":" + port))
-}
-
-func setupFullRoutes(r *gin.Engine, db *gorm.DB) {
-	jwtSecret := getJWTSecret()
-
-	// Initialize
-	userRepo := repositories.NewUserRepository(db)
-	authService := services.NewAuthService(userRepo, jwtSecret)
-	authHandler := handlers.NewAuthHandler(authService)
-	productHandler := handlers.NewProductHandler()
-
-	// Public routes
-	api := r.Group("/api")
-	{
-		api.POST("/register", authHandler.Register)
-		api.POST("/login", authHandler.Login)
-		api.POST("/logout", authHandler.Logout)
-		api.GET("/products", productHandler.GetProducts)
-		api.GET("/categories", productHandler.GetCategories)
-	}
-
-	// Protected routes
-	protected := api.Group("/")
-	protected.Use(middleware.AuthMiddleware(db))
-	{
-		protected.GET("/profile", authHandler.GetProfile)
-		protected.POST("/checkout", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"message": "Coming soon"})
-		})
-	}
-
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok", "mode": "full"})
-	})
-}
-
-func getJWTSecret() []byte {
-	secret := os.Getenv("JWT_SECRET")
-	return []byte(secret)
 }
 
 func getTrustedProxies() []string {
